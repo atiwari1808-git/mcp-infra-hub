@@ -1,0 +1,83 @@
+# ---------- MCP SERVER ----------
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: mcp-server, namespace: infra-hub }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: mcp-server } }
+  template:
+    metadata: { labels: { app: mcp-server } }
+    spec:
+      serviceAccountName: infra-hub-ksa      # ← Workload Identity in action
+      containers:
+        - name: mcp-server
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/mcp-server:v1
+          ports: [{ containerPort: 8000 }]
+          env:
+            - { name: DB_HOST, value: "postgres" }
+            - { name: DB_PORT, value: "5432" }
+            - { name: GCP_PROJECT_ID, value: "mcp-infra-hub" }
+            - { name: DB_USER,     valueFrom: { secretKeyRef: { name: db-credentials, key: DB_USER } } }
+            - { name: DB_PASSWORD, valueFrom: { secretKeyRef: { name: db-credentials, key: DB_PASSWORD } } }
+            - { name: DB_NAME,     valueFrom: { secretKeyRef: { name: db-credentials, key: DB_NAME } } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: mcp-server, namespace: infra-hub }
+spec:
+  selector: { app: mcp-server }
+  ports: [{ port: 8000, targetPort: 8000 }]
+  type: LoadBalancer        # public so EEA/Inspector can reach it later
+---
+# ---------- AUDIT API ----------
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: audit-api, namespace: infra-hub }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: audit-api } }
+  template:
+    metadata: { labels: { app: audit-api } }
+    spec:
+      containers:
+        - name: audit-api
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/audit-api:v1
+          ports: [{ containerPort: 8080 }]
+          env:
+            - { name: DB_HOST, value: "postgres" }
+            - { name: DB_PORT, value: "5432" }
+            - { name: DB_USER,     valueFrom: { secretKeyRef: { name: db-credentials, key: DB_USER } } }
+            - { name: DB_PASSWORD, valueFrom: { secretKeyRef: { name: db-credentials, key: DB_PASSWORD } } }
+            - { name: DB_NAME,     valueFrom: { secretKeyRef: { name: db-credentials, key: DB_NAME } } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: audit-api, namespace: infra-hub }
+spec:
+  selector: { app: audit-api }
+  ports: [{ port: 8080, targetPort: 8080 }]
+  type: LoadBalancer
+---
+# ---------- DASHBOARD ----------
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: dashboard, namespace: infra-hub }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: dashboard } }
+  template:
+    metadata: { labels: { app: dashboard } }
+    spec:
+      containers:
+        - name: dashboard
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/dashboard:v1
+          ports: [{ containerPort: 80 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: dashboard, namespace: infra-hub }
+spec:
+  selector: { app: dashboard }
+  ports: [{ port: 80, targetPort: 80 }]
+  type: LoadBalancer
+

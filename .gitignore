@@ -1,0 +1,30 @@
+# --- Secrets & credentials (NEVER commit) ---
+.env
+**/.env
+*.json                      # catches jenkins-key.json and any SA keys
+!package.json               # but DO keep package.json
+!package-lock.json
+terraform.tfvars
+*.tfvars
+
+# --- Terraform state (contains secrets + is machine-specific) ---
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# --- Python ---
+.venv/
+**/.venv/
+__pycache__/
+*.pyc
+
+# --- Node / React ---
+node_modules/
+**/node_modules/
+dashboard/dist/
+
+# --- Local gcloud / kube config (if any got copied in) ---
+.config/
+*.kubeconfig
+

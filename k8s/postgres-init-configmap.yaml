@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: infra-hub
+data:
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS audit_log (
+        id            SERIAL PRIMARY KEY,
+        tool_name     TEXT NOT NULL,
+        arguments     JSONB,
+        result        TEXT,
+        status        TEXT NOT NULL DEFAULT 'success',
+        action_type   TEXT NOT NULL DEFAULT 'read',
+        confirm_token TEXT,
+        old_value     TEXT,
+        new_value     TEXT,
+        called_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE INDEX IF NOT EXISTS idx_audit_tool ON audit_log (tool_name);
+    CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_log (called_at);
+
