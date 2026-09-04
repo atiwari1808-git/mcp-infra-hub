@@ -3,7 +3,7 @@ pipeline {
     environment {
         PROJECT_ID = 'mcp-infra-hub'
         REGION     = 'us-central1'
-        REPO       = "us-central1-docker.pkg.dev/mcp-infra-hub-507109/infra-hub"
+        REPO       = "us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub"
         IMAGE      = "mcp-server"
         CLUSTER    = 'infra-hub-test'
         ZONE       = 'us-central1-a'
