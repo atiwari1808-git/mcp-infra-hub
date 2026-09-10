@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: ai-host, namespace: infra-hub }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: ai-host } }
+  template:
+    metadata: { labels: { app: ai-host } }
+    spec:
+      containers:
+        - name: ai-host
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/ai-host:v1
+          ports: [{ containerPort: 9000 }]
+          env:
+            - { name: MCP_SERVER_URL, value: "http://mcp-server:8000/mcp" }
+            - { name: GEMINI_MODEL,   value: "gemini-3.7-flash" }
+            - name: GEMINI_API_KEY
+              valueFrom: { secretKeyRef: { name: ai-secrets, key: GEMINI_API_KEY } }
+            - { name: DB_HOST, value: "postgres" }
+            - { name: DB_PORT, value: "5432" }
+            - name: DB_USER
+              valueFrom: { secretKeyRef: { name: db-credentials, key: DB_USER } }
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: db-credentials, key: DB_PASSWORD } }
+            - name: DB_NAME
+              valueFrom: { secretKeyRef: { name: db-credentials, key: DB_NAME } }
+
+---
+apiVersion: v1
+kind: Service
+metadata: { name: ai-host, namespace: infra-hub }
+spec:
+  selector: { app: ai-host }
+  ports: [{ port: 9000, targetPort: 9000 }]
+  # ClusterIP (default) — internal only, reached via nginx proxy
+

@@ -1,0 +1,7 @@
+fastapi>=0.110
+uvicorn>=0.29
+google-genai>=0.3
+mcp>=2
+python-dotenv>=1.0
+psycopg2-binary>=2.9
+

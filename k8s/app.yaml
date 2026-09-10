@@ -11,7 +11,7 @@ spec:
       serviceAccountName: infra-hub-ksa      # ← Workload Identity in action
       containers:
         - name: mcp-server
-          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/mcp-server:v1
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/mcp-server:v3
           ports: [{ containerPort: 8000 }]
           env:
             - { name: DB_HOST, value: "postgres" }
@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
         - name: audit-api
-          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/audit-api:v1
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/audit-api:v4
           ports: [{ containerPort: 8080 }]
           env:
             - { name: DB_HOST, value: "postgres" }
@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
         - name: dashboard
-          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/dashboard:v1
+          image: us-central1-docker.pkg.dev/mcp-infra-hub/infra-hub/dashboard:v6
           ports: [{ containerPort: 80 }]
 ---
 apiVersion: v1
